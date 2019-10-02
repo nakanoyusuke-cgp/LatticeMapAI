@@ -18,12 +18,6 @@ namespace LatticeMap
     /// <typeparam name="T"></typeparam>
     public class UnConvertibleGenericMap<T>
     {
-        public static Vector2Int DefaultRange
-        {
-            get => SearchAlgorithm.DefaultRange;
-            set => SearchAlgorithm.DefaultRange = value;
-        }
-        
         /// <summary>
         /// 2次元配列のLength
         /// </summary>
@@ -103,24 +97,30 @@ namespace LatticeMap
         public static implicit operator GenericMap<decimal>(GenericMap<T> map)=>new GenericMap<decimal>(map.Range, (x,y)=>Convert.ToDecimal(map[x,y]));
         public static explicit operator GenericMap<int>(GenericMap<T> map)=>new GenericMap<int>(map.Range, (x,y)=>Convert.ToInt32(map[x,y]));
         public static explicit operator GenericMap<long>(GenericMap<T> map)=>new GenericMap<long>(map.Range, (x,y)=>Convert.ToInt64(map[x,y]));
-        public static GenericMap<T> operator +(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Add(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
-        public static GenericMap<T> operator -(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Subtract(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
-        public static GenericMap<T> operator *(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => MultiPly(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
-        public static GenericMap<T> operator /(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Divide(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
-        public static GenericMap<T> operator %(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Modulo(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
-        public static GenericMap<T> operator +(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Add(l[x,y], r));
-        public static GenericMap<T> operator -(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Subtract(l[x,y], r));
-        public static GenericMap<T> operator *(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>MultiPly(l[x,y], r));
-        public static GenericMap<T> operator /(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Divide(l[x,y], r));
-        public static GenericMap<T> operator %(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Modulo(l[x,y], r));
-        // 演算子デリゲート
-        private static readonly Func<T, T, T> Add = Operator<T>(Expression.Add);
-        private static readonly Func<T, T, T> Subtract = Operator<T>(Expression.Subtract);
-        private static readonly Func<T, T, T> MultiPly = Operator<T>(Expression.Multiply);
-        private static readonly Func<T, T, T> Divide = Operator<T>(Expression.Divide);
-        private static readonly Func<T, T, T> Modulo = Operator<T>(Expression.Modulo);
+        public static GenericMap<T> operator +(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Operator(Expression.Add)(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
+        public static GenericMap<T> operator -(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Operator(Expression.Subtract)(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
+        public static GenericMap<T> operator *(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Operator(Expression.Multiply)(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
+        public static GenericMap<T> operator /(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Operator(Expression.Divide)(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
+        public static GenericMap<T> operator %(GenericMap<T> l, GenericMap<T> r) => l.RangeCheck(r) ? new GenericMap<T>(l.Range, (x,y) => Operator(Expression.Modulo)(l[x,y], r[x,y])) : new GenericMap<T>(l.Range);
+        public static GenericMap<T> operator +(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Operator(Expression.Add)(l[x,y], r));
+        public static GenericMap<T> operator -(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Operator(Expression.Subtract)(l[x,y], r));
+        public static GenericMap<T> operator *(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Operator(Expression.Multiply)(l[x,y], r));
+        public static GenericMap<T> operator /(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Operator(Expression.Divide)(l[x,y], r));
+        public static GenericMap<T> operator %(GenericMap<T> l, T r) => new GenericMap<T>(l.Range, (x,y)=>Operator(Expression.Modulo)(l[x,y], r));
+        
+        // 一度使用された演算子のデリゲートが格納される
+        private static readonly Dictionary<Binary, Func<T, T, T>> OpDictionary = new Dictionary<Binary, Func<T, T, T>>();
+
+        // 演算子のデリゲート辞書から値取り出し 無ければ格納
+        private static Func<T, T, T> Operator(Binary op)
+        {
+            if(!OpDictionary.ContainsKey(op))
+                OpDictionary.Add(op, CreateOperator(op));
+            return OpDictionary[op];
+        }
+        
         // 演算子オーバーロード用の式木
-        private static Func<T, T, T> Operator<T>(Binary op)
+        private static Func<T, T, T> CreateOperator(Binary op)
         {
             var l = Expression.Parameter(typeof(T), "l");
             var r = Expression.Parameter(typeof(T), "r");

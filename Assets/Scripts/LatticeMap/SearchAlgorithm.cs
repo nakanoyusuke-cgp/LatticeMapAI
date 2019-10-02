@@ -19,15 +19,25 @@ namespace LatticeMap
         /// 探索用関数等で特にマップ範囲を指定しなかった場合この値が適用される。
         /// むやみに変更しないように
         /// </summary>
-        public static Vector2Int DefaultRange = new Vector2Int();
+        public static Vector2Int DefaultRange
+        {
+            private get
+            {
+                if (_defaultRange.x == 0 && _defaultRange.y == 0)
+                    Debug.LogError("SearchAlgorithm.DefaultRange was not initialized!!");
+                return _defaultRange;
+            }
+            set => _defaultRange = value;
+        }
+        private static Vector2Int _defaultRange = new Vector2Int();
 
         /// <summary>
         /// DistanceMap専用の構造体
         /// </summary>
         private struct SearchAgent
         {
-            public Vector2Int position;
-            public int distance;
+            public Vector2Int Position;
+            public int Distance;
         }
 
         /// <summary>
@@ -48,15 +58,15 @@ namespace LatticeMap
         {
             var searchMatrix = new GenericMap<int>(mapRange, (x, y) => -1);
             Queue<SearchAgent> searchAgent = new Queue<SearchAgent>(){};
-            searchAgent.Enqueue(new SearchAgent() { position = basePosition, distance = 0 });
+            searchAgent.Enqueue(new SearchAgent() { Position = basePosition, Distance = 0 });
             searchMatrix[basePosition] = 0;
             while (0 < searchAgent.Count)
             {
                 SearchAgent current = searchAgent.Dequeue();
-                foreach (var vector in nextPoint(current.position))
+                foreach (var vector in nextPoint(current.Position))
                     if (searchMatrix.WithinMapRange(vector))
                         if (searchMatrix[vector] == -1)
-                            searchAgent.Enqueue(new SearchAgent(){position = vector, distance = searchMatrix[vector] = current.distance + 1});
+                            searchAgent.Enqueue(new SearchAgent(){Position = vector, Distance = searchMatrix[vector] = current.Distance + 1});
             }
             return new GenericMap<T>(mapRange, (x,y)=>function(searchMatrix[x,y]));
         }

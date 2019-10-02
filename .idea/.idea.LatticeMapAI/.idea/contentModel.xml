@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
+    <e p="C:\Users\Lycolet\.Rider2019.2\config\scratches" t="IncludeRecursive" />
     <e p="C:\Users\Lycolet\.Rider2019.2\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\Lycolet\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_LatticeMapAI.874667788.00" t="ExcludeRecursive" />
-    <e p="Z:\ProjectData\GitHub\LatticeMapAI\LatticeMapAI" t="IncludeRecursive">
+    <e p="C:\Users\Lycolet\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_LatticeMapAI.1537847182.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Lycolet\Documents\GitHub\LatticeMapAI" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
