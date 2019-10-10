@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using UnityEngine;
 
-namespace LatticeMap
+namespace GridMap
 {
     // 式木で使ってますがあんまり気にしないでください。
     using Binary = Func<ParameterExpression, ParameterExpression, BinaryExpression>;

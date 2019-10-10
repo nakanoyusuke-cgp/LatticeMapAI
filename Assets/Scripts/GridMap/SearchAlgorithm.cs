@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace LatticeMap
+namespace GridMap
 {
     /// <summary>
     /// 1ステップで到達可能な相対座標を示す。

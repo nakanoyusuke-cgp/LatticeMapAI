@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using LatticeMap;
+using GridMap;
 using UnityEngine;
 using UnityEngine.UI;
 
